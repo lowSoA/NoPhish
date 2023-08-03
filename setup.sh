@@ -325,7 +325,7 @@ body {
 	    	sudo docker cp ./vnc/user.js vnc-user$c:/home/headless/
 	    	sudo docker exec vnc-user$c /bin/bash -c 'find -name prefs.js -exec dirname {} \; | xargs cp /home/headless/user.js '
 	    else
-	    	echo 'user_pref("general.useragent.override","This user was phished by NoPhish");' > ./vnc/user.js
+	    	echo 'user_pref("general.useragent.override","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0");' > ./vnc/user.js
 	    	echo 'user_pref("font.name.serif.x-western", "DejaVu Sans");' >> ./vnc/user.js
 	    	sudo docker cp ./vnc/user.js vnc-user$c:/home/headless/user.js
 	    	sudo docker exec vnc-user$c sh -c "find -name cookies.sqlite -exec dirname {} \; | xargs -n 1 cp -f -r /home/headless/user.js "	    	  
