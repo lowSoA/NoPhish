@@ -118,6 +118,10 @@ case "$1" in
     		RewriteMap redirects txt:/tmp/redirects.txt
     		RewriteCond ${redirects:%{HTTP_HOST}%{REQUEST_URI}} ^.+
     		RewriteRule ^ ${C:1}? [R=302,L]
+
+		<Location /status.php>
+			Deny from all
+		</Location>
 		' >> ./proxy/000-default.conf
 	else
 		echo "<VirtualHost *:80>" >> ./proxy/000-default.conf
@@ -407,11 +411,19 @@ body {
 	</html>
         " >> ./output/status.php
 	echo "</VirtualHost>" >> ./proxy/000-default.conf
-        rm -r ./novnc.ico
+	rm -r ./novnc.ico
         
-        apachefile="./proxy/000-default.conf"
-        awk '/<VirtualHost/,/<\/VirtualHost/ {gsub("*:80", "*:65534");gsub("Location /","Location /angler/");print; if (/<\/VirtualHost/) print ""}' "$apachefile" > temp.txt
-	awk '/<VirtualHost/,/<\/VirtualHost/ {gsub("Location /angler/status.php","Location /");gsub("Deny from all","AuthType Basic \n                    AuthName \"Restricted Area\" \n                    AuthUserFile /etc/apache2/.htpasswd \n                    Require valid-user");print; if (/<\/VirtualHost/) print ""}' "temp.txt" > temp2.txt
+	apachefile="./proxy/000-default.conf"
+    
+	if [ -n "$SSL" ]
+	then
+		awk '/<VirtualHost/,/<\/VirtualHost/ {gsub("*:443", "*:65534");gsub("Location /","Location /angler/");print; if (/<\/VirtualHost/) print ""}' "$apachefile" > temp.txt
+		awk '/<VirtualHost/,/<\/VirtualHost/ {gsub("Location /angler/status.php","Location /");gsub("Deny from all","AuthType Basic \n                    AuthName \"Restricted Area\" \n                    AuthUserFile /etc/apache2/.htpasswd \n                    Require valid-user");print; if (/<\/VirtualHost/) print ""}' "temp.txt" > temp2.txt
+	else
+		awk '/<VirtualHost/,/<\/VirtualHost/ {gsub("*:80", "*:65534");gsub("Location /","Location /angler/");print; if (/<\/VirtualHost/) print ""}' "$apachefile" > temp.txt
+		awk '/<VirtualHost/,/<\/VirtualHost/ {gsub("Location /angler/status.php","Location /");gsub("Deny from all","AuthType Basic \n                    AuthName \"Restricted Area\" \n                    AuthUserFile /etc/apache2/.htpasswd \n                    Require valid-user");print; if (/<\/VirtualHost/) print ""}' "temp.txt" > temp2.txt
+	fi
+
 	cat temp2.txt >> ./proxy/000-default.conf
 	
 	rm -r ./temp.txt
