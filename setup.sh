@@ -345,7 +345,7 @@ body {
 	    	
 	    fi
 	    
-	    
+	    sudo docker exec --user root vnc-user$c sh -c "sed -i 's/TARGET_URL/${Target//\//\\/}/g' /usr/libexec/noVNCdim/app/ui.js"
 	    
 	    
 	    sudo docker exec vnc-user$c sh -c "xfconf-query --channel xsettings --property /Gtk/CursorThemeName --set WinCursor &" 
